@@ -667,19 +667,31 @@
 
         // --- Listeners de Fonte ---
         
-        fontSelect.addEventListener('change', (e) => {
+		fontSelect.addEventListener('change', (e) => {
             if (e.target.value === 'custom') {
                 customFontInput.style.display = 'block';
                 customFontInput.focus();
-                // Não atualiza currentFontFamily ainda, espera digitar
+                
+                // RESETAR ESTILOS AO ENTRAR EM CUSTOM
+                isItalic = false;
+                btnItalic.classList.remove('active');
+                isBold = false;
+                btnBold.classList.remove('active');
+                
+                drawText();
             } else {
                 customFontInput.style.display = 'none';
                 currentFontFamily = e.target.value;
                 
-                // Se voltar pra Saol, ativa itálico e desativa bold por padrão
                 if (currentFontFamily === 'SaolDisplay') {
                     isItalic = true;
                     btnItalic.classList.add('active');
+                    isBold = false;
+                    btnBold.classList.remove('active');
+                } else {
+                    // Reset para outras fontes da lista
+                    isItalic = false;
+                    btnItalic.classList.remove('active');
                     isBold = false;
                     btnBold.classList.remove('active');
                 }
