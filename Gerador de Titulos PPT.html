@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Títulos - Saol Display</title>
+    <style>
+        /* Importação da Fonte Local */
+        @font-face {
+            font-family: 'SaolDisplay';
+            src: url('./fonts/SaolDisplay-LightItalic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        :root {
+            --bg-color: #04047f;
+            --panel-bg: #ffffff;
+            --text-color: #000;
+            --accent-color: #04047f;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            font-family: 'SaolDisplay', 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .header p {
+            opacity: 0.8;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Painel de Controles */
+        .controls {
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            /* Grid responsivo */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: start; /* Alinha ao topo para lidar com alturas diferentes */
+        }
+
+        /* Classes para controle de largura no Grid */
+        .col-half {
+            grid-column: span 1;
+        }
+        
+        .col-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Em telas maiores, Texto e Fonte dividem a primeira linha */
+        @media (min-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+            }
+            .group-text {
+                grid-column: 1 / 2;
+            }
+            .group-font {
+                grid-column: 2 / 3;
+            }
+            /* O restante flui abaixo */
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%; /* Para alinhar alturas */
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #888;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px; /* Altura fixa para alinhar com o painel de fonte */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            resize: none; /* Impede redimensionar para não quebrar o layout */
+            font-size: 1.1rem;
+            box-sizing: border-box;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            height: 36px;
+        }
+
+        /* Estilos específicos para o painel de fonte */
+        .font-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .font-style-toggles {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .btn-style {
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .btn-style.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Estilos de Alinhamento */
+        .alignment-wrapper {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 6px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .btn-align {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-align:hover {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-align.active {
+            background-color: white;
+            color: var(--accent-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        
+        .checkbox-wrapper input {
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper span {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        /* Botões de Ação */
+        .buttons-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-base {
+            border: none;
+            padding: 0 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            height: 48px;
+            min-width: 200px;
+        }
+
+        .btn-download {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background-color: #0000ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-copy {
+            background-color: #fff;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .btn-copy:hover {
+            background-color: #f0f0ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-base:active {
+            transform: translateY(1px);
+        }
+
+        /* Área de Preview */
+        .preview-area {
+            background-color: #0000ff;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            overflow: auto;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, background-image 0.3s ease;
+            margin-top: 20px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        .preview-area.transparent-bg {
+            background-color: #fff;
+            background-image: 
+                linear-gradient(45deg, #eee 25%, transparent 25%),
+                linear-gradient(-45deg, #eee 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #eee 75%),
+                linear-gradient(-45deg, transparent 75%, #eee 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        canvas {
+            height: auto;
+            outline: none; 
+            box-shadow: none;
+        }
+
+        .preview-area.transparent-bg canvas {
+             outline: 1px dashed rgba(0,0,0,0.1); 
+             box-shadow: none;
+        }
+
+        .info-msg {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: #666;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr; /* Coluna única no mobile */
+            }
+            .group-text, .group-font {
+                grid-column: 1 / -1;
+            }
+            .buttons-wrapper {
+                flex-direction: column;
+            }
+            .btn-base {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Gerador de Títulos</h1>
+            <p>Exportador PNG Transparente para Google Slides</p>
+        </div>
+
+        <div class="controls">
+            
+            <div class="control-group group-text">
+                <label for="textInput">Texto</label>
+                <textarea id="textInput" placeholder="Digite seu título aqui...">Título do Slide</textarea>
+            </div>
+
+            <div class="control-group group-font">
+                <label for="fontSelect">Fonte</label>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <select id="fontSelect">
+                        <option value="SaolDisplay" selected>Saol Display Light Italic (Padrão)</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="custom">Outra (Digitar nome...)</option>
+                    </select>
+                    
+                    <input type="text" id="customFontInput" placeholder="Nome exato da fonte (ex: Roboto)" style="display:none;">
+                    
+                    <div class="font-style-toggles">
+                        <div class="btn-style" id="btnBold">B</div>
+                        <div class="btn-style active" id="btnItalic">I</div> </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="fontSize">Tamanho (px)</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="fontSize" min="20" max="400" value="120">
+                    <span id="fontSizeDisplay" style="min-width: 45px; font-size: 0.9rem;">120px</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Alinhamento</label>
+                <div class="alignment-wrapper">
+                    <button class="btn-align active" data-align="left" id="alignLeftBtn" title="Alinhar à Esquerda">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                    </button>
+                    <button class="btn-align" data-align="center" id="alignCenterBtn" title="Centralizar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+                    </button>
+                    <button class="btn-align" data-align="right" id="alignRightBtn" title="Alinhar à Direita">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Cores</label>
+                <div style="display: flex; gap: 10px;">
+                    <div class="color-picker-wrapper" title="Cor do Texto">
+                        <input type="color" id="textColor" value="#ffffff">
+                        <span id="hexTextDisplay" style="font-size: 0.8rem;">Texto</span>
+                    </div>
+                    <div class="color-picker-wrapper" title="Cor do Fundo (Preview)">
+                        <input type="color" id="bgColor" value="#0000ff">
+                        <span id="hexBgDisplay" style="font-size: 0.8rem;">Fundo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Ajustes</label>
+                <label class="checkbox-wrapper">
+                        <input type="checkbox" id="transparentBgToggle">
+                        <span>Fundo Transparente (Visão)</span>
+                </label>
+                <label class="checkbox-wrapper">
+                        <input type="checkbox" id="trimCanvas" checked>
+                        <span>Recortar excesso (Trim)</span>
+                </label>
+            </div>
+
+            <div class="control-group col-full">
+                <div class="buttons-wrapper">
+                    <button class="btn-base btn-copy" id="copyBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copiar PNG
+                    </button>
+                    <button class="btn-base btn-download" id="downloadBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Baixar PNG
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-msg">O arquivo baixado <b>sempre</b> terá fundo transparente, independente da cor de visualização acima.</div>
+        </div>
+    </div>
+
+    <div class="preview-area" id="previewContainer">
+        <canvas id="textCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('textCanvas');
+        const ctx = canvas.getContext('2d');
+        const previewContainer = document.getElementById('previewContainer');
+        
+        const textInput = document.getElementById('textInput');
+        
+        // Controles de Fonte
+        const fontSelect = document.getElementById('fontSelect');
+        const customFontInput = document.getElementById('customFontInput');
+        const btnBold = document.getElementById('btnBold');
+        const btnItalic = document.getElementById('btnItalic');
+        
+        const fontSizeInput = document.getElementById('fontSize');
+        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+        const alignButtons = document.querySelectorAll('.btn-align');
+        const textColorInput = document.getElementById('textColor');
+        const bgColorInput = document.getElementById('bgColor');
+        const transparentBgToggle = document.getElementById('transparentBgToggle');
+        const trimCheckbox = document.getElementById('trimCanvas');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Estado Inicial
+        let currentAlignment = 'left';
+        let currentFontFamily = 'SaolDisplay';
+        let isBold = false;
+        let isItalic = true; // Saol é itálica por padrão
+
+        // Configurações iniciais
+        document.fonts.ready.then(function() {
+            // Tenta carregar a Saol
+            if (document.fonts.check(`12px "SaolDisplay"`)) {
+                console.log('Fonte Saol carregada');
+            }
+            drawText();
+        });
+
+        function updatePreviewBackground() {
+            if (transparentBgToggle.checked) {
+                previewContainer.classList.add('transparent-bg');
+                previewContainer.style.backgroundColor = ''; 
+            } else {
+                previewContainer.classList.remove('transparent-bg');
+                previewContainer.style.backgroundColor = bgColorInput.value;
+            }
+        }
+
+        function getFontString(size) {
+            let style = isItalic ? 'italic' : 'normal';
+            let weight = isBold ? 'bold' : 'normal';
+            
+            // Tratamento especial para SaolDisplay (já é itálica por natureza)
+            if (currentFontFamily === 'SaolDisplay') {
+                return `italic ${size}px "${currentFontFamily}", serif`;
+            }
+            
+            // Para outras fontes
+            return `${style} ${weight} ${size}px "${currentFontFamily}", sans-serif`;
+        }
+
+        function drawText() {
+            const text = textInput.value;
+            const fontSize = parseInt(fontSizeInput.value);
+            const color = textColorInput.value;
+            const lineHeight = fontSize * 1.1; 
+
+            // 1. Contexto preliminar
+            ctx.font = getFontString(fontSize);
+            
+            // 2. Processar linhas
+            const lines = text.split('\n');
+            
+            // 3. Calcular dimensões
+            let maxWidth = 0;
+            lines.forEach(line => {
+                const metrics = ctx.measureText(line);
+                // Padding extra para evitar cortes, especialmente em itálico
+                const w = metrics.width + (fontSize * 0.5); 
+                if (w > maxWidth) maxWidth = w;
+            });
+
+            const totalHeight = (lines.length * lineHeight) + (fontSize * 0.5); 
+
+            // 5. Redimensionar
+            canvas.width = maxWidth || 100;
+            canvas.height = totalHeight || 100;
+
+            // 6. Limpar
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!text) return;
+
+            // 7. Contexto Final
+            ctx.font = getFontString(fontSize);
+            ctx.fillStyle = color;
+            ctx.textBaseline = 'top';
+            ctx.textAlign = currentAlignment; 
+
+            const paddingX = fontSize * 0.1;
+            const paddingTop = fontSize * 0.1;
+            
+            let xPos;
+            if (currentAlignment === 'left') {
+                xPos = paddingX;
+            } else if (currentAlignment === 'center') {
+                xPos = canvas.width / 2;
+            } else if (currentAlignment === 'right') {
+                xPos = canvas.width - paddingX;
+            }
+
+            lines.forEach((line, index) => {
+                ctx.fillText(line, xPos, paddingTop + (index * lineHeight));
+            });
+            
+            // 9. Trim
+            if(trimCheckbox.checked) {
+                trimCanvas(ctx);
+            }
+        }
+
+        function trimCanvas(ctx) {
+            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const l = pixels.data.length;
+            let bound = { top: null, left: null, right: null, bottom: null };
+            let x, y;
+
+            for (let i = 0; i < l; i += 4) {
+                if (pixels.data[i + 3] !== 0) { 
+                    x = (i / 4) % canvas.width;
+                    y = ~~((i / 4) / canvas.width);
+
+                    if (bound.top === null) bound.top = y;
+                    if (bound.left === null) bound.left = x;
+                    else if (x < bound.left) bound.left = x;
+                    if (bound.right === null) bound.right = x;
+                    else if (x > bound.right) bound.right = x;
+                    if (bound.bottom === null) bound.bottom = y;
+                    else if (y > bound.bottom) bound.bottom = y;
+                }
+            }
+
+            if (bound.top !== null) {
+                const padding = 10;
+                const trimHeight = bound.bottom - bound.top + (padding * 2);
+                const trimWidth = bound.right - bound.left + (padding * 2);
+                const trimmed = ctx.getImageData(bound.left, bound.top, trimWidth, trimHeight);
+
+                canvas.width = trimWidth;
+                canvas.height = trimHeight;
+                ctx.putImageData(trimmed, padding, padding);
+            }
+        }
+
+        function downloadImage() {
+            if(!textInput.value.trim()) {
+                alert("Escreva algum texto primeiro.");
+                return;
+            }
+            const link = document.createElement('a');
+            let rawName = textInput.value.split('\n')[0].trim();
+            let safeName = rawName.replace(/[<>:"/\\|?*]/g, '');
+            if (safeName.length === 0) safeName = 'titulo';
+            safeName = safeName.substring(0, 50);
+            link.download = `${safeName}_saol.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        async function copyImageToClipboard() {
+            if(!textInput.value.trim()) {
+                alert("Escreva algum texto primeiro.");
+                return;
+            }
+            try {
+                canvas.toBlob(async (blob) => {
+                    if (!blob) return;
+                    try {
+                        const item = new ClipboardItem({ "image/png": blob });
+                        await navigator.clipboard.write([item]);
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copiado!`;
+                        copyBtn.style.backgroundColor = "#e6ffe6";
+                        copyBtn.style.borderColor = "#008000";
+                        copyBtn.style.color = "#008000";
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                            copyBtn.style.backgroundColor = "";
+                            copyBtn.style.borderColor = "";
+                            copyBtn.style.color = "";
+                        }, 2000);
+                    } catch (err) {
+                        alert("Erro ao copiar. Tente usar o botão 'Baixar PNG'.");
+                    }
+                }, 'image/png');
+            } catch (err) {
+                alert("Seu navegador não suporta cópia direta.");
+            }
+        }
+
+        // --- Listeners de Fonte ---
+        
+        fontSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customFontInput.style.display = 'block';
+                customFontInput.focus();
+                // Não atualiza currentFontFamily ainda, espera digitar
+            } else {
+                customFontInput.style.display = 'none';
+                currentFontFamily = e.target.value;
+                
+                // Se voltar pra Saol, ativa itálico e desativa bold por padrão
+                if (currentFontFamily === 'SaolDisplay') {
+                    isItalic = true;
+                    btnItalic.classList.add('active');
+                    isBold = false;
+                    btnBold.classList.remove('active');
+                }
+                drawText();
+            }
+        });
+
+        customFontInput.addEventListener('input', (e) => {
+            if (e.target.value.trim() !== '') {
+                currentFontFamily = e.target.value;
+                drawText();
+            }
+        });
+
+        btnBold.addEventListener('click', () => {
+            isBold = !isBold;
+            btnBold.classList.toggle('active', isBold);
+            drawText();
+        });
+
+        btnItalic.addEventListener('click', () => {
+            isItalic = !isItalic;
+            btnItalic.classList.toggle('active', isItalic);
+            drawText();
+        });
+
+        // --- Listeners Gerais ---
+
+        alignButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentAlignment = btn.dataset.align;
+                alignButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                drawText();
+            });
+        });
+
+        textInput.addEventListener('input', drawText);
+        fontSizeInput.addEventListener('input', (e) => {
+            fontSizeDisplay.textContent = e.target.value + 'px';
+            drawText();
+        });
+        textColorInput.addEventListener('input', drawText);
+        bgColorInput.addEventListener('input', updatePreviewBackground);
+        transparentBgToggle.addEventListener('change', updatePreviewBackground);
+        trimCheckbox.addEventListener('change', drawText);
+        downloadBtn.addEventListener('click', downloadImage);
+        copyBtn.addEventListener('click', copyImageToClipboard);
+
+        window.addEventListener('load', () => {
+             textColorInput.value = "#ffffff";
+             updatePreviewBackground();
+             drawText();
+        });
+
+    </script>
+</body>
+</html>
