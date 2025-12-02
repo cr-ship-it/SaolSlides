@@ -620,7 +620,7 @@
             }
         }
 
-        function downloadImage() {
+		function downloadImage() {
             if(!textInput.value.trim()) {
                 alert("Escreva algum texto primeiro.");
                 return;
@@ -630,7 +630,13 @@
             let safeName = rawName.replace(/[<>:"/\\|?*]/g, '');
             if (safeName.length === 0) safeName = 'titulo';
             safeName = safeName.substring(0, 50);
-            link.download = `${safeName}_saol.png`;
+            
+            // Pega o tamanho atual da fonte para o nome
+            const currentSize = fontSizeInput.value;
+
+            // Ajusta o nome do arquivo (Ex: Titulo_120px.png)
+            link.download = `${safeName}_${currentSize}px.png`;
+            
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
